@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>ボートレース予想 AI分析</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-logo">⛵ <span>ボートレース</span>AI予想</div>
+  <div class="header-right">
+    <span id="live-indicator">● 更新待機中</span>
+    <span id="update-badge">更新!</span>
+  </div>
+</header>
+
+<!-- 場選択 -->
+<div class="venue-section">
+  <div class="venue-scroll">
+    <div id="venue-tabs"></div>
+  </div>
+</div>
+
+<!-- レース選択 -->
+<div class="race-section">
+  <div class="race-scroll">
+    <div id="race-buttons"></div>
+  </div>
+</div>
+
+<!-- レース情報ヘッダー -->
+<div class="race-header">
+  <div id="race-title">---</div>
+  <div id="race-info"></div>
+  <div class="header-meta">
+    <div class="countdown-wrap">
+      <span class="countdown-label">発走まで</span>
+      <span id="countdown">--:--</span>
+    </div>
+    <div class="last-update-wrap">
+      最終更新: <span id="last-update">---</span>
+    </div>
+  </div>
+</div>
+
+<!-- メインタブ -->
+<nav class="main-tabs">
+  <button class="tab-btn active" data-tab="race-card">出走表</button>
+  <button class="tab-btn" data-tab="exhibition">展示データ</button>
+  <button class="tab-btn" data-tab="ai-prediction">AI予想</button>
+  <button class="tab-btn" data-tab="course-stats">コース別成績</button>
+  <button class="tab-btn" data-tab="profiles">選手詳細</button>
+  <button class="tab-btn" data-tab="venue-water">場・水質</button>
+  <button class="tab-btn" data-tab="odds-tab">オッズ計算</button>
+  <button class="tab-btn" data-tab="charts">グラフ</button>
+</nav>
+
+<!-- 出走表 -->
+<div id="race-card" class="tab-panel active">
+  <div class="section-header">
+    <span class="section-title">出走表</span>
+    <span style="font-size:0.72rem;color:#888">チルト・モーター・展示タイム・ST・直近成績</span>
+  </div>
+  <div class="table-wrap">
+    <table class="race-table">
+      <thead>
+        <tr>
+          <th>枠</th>
+          <th>選手</th>
+          <th>モーター</th>
+          <th>チルト</th>
+          <th>原時計</th>
+          <th>展示T</th>
+          <th>ST</th>
+          <th>直近5走</th>
+        </tr>
+      </thead>
+      <tbody id="race-card-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 展示データ -->
+<div id="exhibition" class="tab-panel">
+  <div class="section-header">
+    <span class="section-title">展示データ</span>
+    <div class="realtime-note">
+      <div class="realtime-dot"></div>
+      <span>展示期間中はリアルタイム更新（30秒間隔）</span>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="exhibition-table">
+      <thead>
+        <tr>
+          <th>順位</th>
+          <th>枠</th>
+          <th>選手名</th>
+          <th>チルト</th>
+          <th>展示タイム ↑</th>
+          <th>ST</th>
+          <th>コース勝率</th>
+          <th>逃げ/逃し率</th>
+        </tr>
+      </thead>
+      <tbody id="exhibition-body"></tbody>
+    </table>
+  </div>
+  <div id="ot-section" class="ot-section"></div>
+  <div style="padding:10px 4px;font-size:0.75rem;color:#666;line-height:1.7">
+    ※ 展示タイムは直線150mのタイム（低いほど好機力）<br>
+    ※ チルト：＋大＝攻撃的まくり向き　－大＝守備的逃げ向き<br>
+    ※ 逃げ率＝1コース選手が1着を獲る確率　逃し率＝2コースが1コースを差せず逃がした率
+  </div>
+</div>
+
+<!-- AI予想 -->
+<div id="ai-prediction" class="tab-panel">
+  <div class="ai-section">
+    <div class="ai-title">
+      AI総合予想
+      <span class="ai-badge">Machine Learning</span>
+    </div>
+    <div id="ai-pred-container"></div>
+
+    <div class="rec-section">
+      <div class="rec-title">推奨買い目</div>
+      <div id="ai-recommendations"></div>
+    </div>
+
+    <div class="analysis-section">
+      <div class="analysis-title">AI分析コメント</div>
+      <div id="ai-analysis"></div>
+    </div>
+
+    <div style="margin-top:14px;padding:10px 12px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border);font-size:0.75rem;color:var(--text-secondary);line-height:1.8">
+      <strong style="color:var(--text-primary)">AI予想スコア算出根拠</strong><br>
+      展示タイム(28%) + 原時計(18%) + コース別勝率(20%) + ST(15%) + チルト(8%) + モーター勝率(7%) + 直近成績(4%)<br>
+      × コースアドバンテージ補正（1コース最大1.35倍）<br>
+      ※ 本予想はデータに基づく参考情報です。必ず自己判断でご購入ください。
+    </div>
+  </div>
+</div>
+
+<!-- コース別成績 -->
+<div id="course-stats" class="tab-panel">
+  <div class="section-header">
+    <span class="section-title">コース別成績</span>
+    <span style="font-size:0.72rem;color:#888">各選手の配置コースを強調表示</span>
+  </div>
+  <div id="cs-filter" class="cs-filter-bar">
+    <button class="csf-btn active" data-cat="all">全体</button>
+    <button class="csf-btn" data-cat="recent10">直近10走</button>
+    <button class="csf-btn" data-cat="recent6m">直近6ヶ月</button>
+    <button class="csf-btn" data-cat="tochi">当地</button>
+    <button class="csf-btn" data-cat="sg">SG</button>
+    <button class="csf-btn" data-cat="g1">G1</button>
+    <button class="csf-btn" data-cat="general">一般</button>
+  </div>
+  <div id="course-stats-grid" class="course-stats-grid"></div>
+</div>
+
+<!-- 場・水質 -->
+<div id="venue-water" class="tab-panel">
+  <div class="section-header">
+    <span class="section-title">場の特徴</span>
+    <span style="font-size:0.72rem;color:#888">当該ボートレース場の特性</span>
+  </div>
+  <div id="venue-features-content"></div>
+
+  <div class="section-header" style="margin-top:24px">
+    <span class="section-title">水質特性ガイド</span>
+    <span style="font-size:0.72rem;color:#888">淡水・海水・汽水の違い</span>
+  </div>
+  <div id="water-page-content"></div>
+</div>
+
+<!-- オッズ計算 -->
+<div id="odds-tab" class="tab-panel">
+
+  <!-- 3連単グリッド -->
+  <div class="section-header">
+    <span class="section-title">3連単オッズ</span>
+    <span style="font-size:0.72rem;color:#888">マス目をタップ → 3着を選択 → ＋で計算機に追加</span>
+  </div>
+  <div class="og-legend-row">
+    <span class="og-leg og-s">20倍未満</span>
+    <span class="og-leg og-a">20〜50倍</span>
+    <span class="og-leg og-b">50〜150倍</span>
+    <span class="og-leg og-c">150倍超</span>
+    <span style="font-size:0.7rem;color:#555">※参考オッズ（モック）</span>
+  </div>
+  <div id="odds-grid-container" class="og-container"></div>
+
+  <!-- 計算ツール -->
+  <div class="odds-calc-layout">
+    <!-- 単純計算 -->
+    <div class="odds-calc-card">
+      <div class="calc-title">払戻計算</div>
+      <div class="calc-row">
+        <label>賭け金 (円)</label>
+        <input type="number" id="calc-amount" placeholder="1000" step="100" min="100" class="calc-input">
+      </div>
+      <div class="calc-row">
+        <label>オッズ (倍)</label>
+        <input type="number" id="calc-odds" placeholder="5.2" step="0.1" min="1.0" class="calc-input">
+      </div>
+      <button id="odds-calc-btn" class="calc-btn">計算する</button>
+      <div id="calc-result" class="calc-result"></div>
+      <div class="calc-note">※払戻金は100円単位で切り捨て</div>
+    </div>
+
+    <!-- 合成オッズ -->
+    <div class="odds-calc-card">
+      <div class="calc-title">合成オッズ計算</div>
+      <div class="calc-note" style="margin-bottom:8px">複数の買い目をまとめて投資した場合の合成オッズを計算します</div>
+      <table class="synth-table">
+        <thead><tr><th>買い目</th><th>オッズ</th><th>金額(円)</th><th></th></tr></thead>
+        <tbody id="synth-tbody">
+          <tr>
+            <td><input type="text" class="synth-combo" placeholder="1→2→3" style="width:80px"></td>
+            <td><input type="number" class="synth-odds" placeholder="38.5" step="0.1" min="1" style="width:64px"></td>
+            <td><input type="number" class="synth-amount" placeholder="500" step="100" min="100" style="width:72px"></td>
+            <td><button class="synth-del-btn" onclick="this.closest('tr').remove();calcSyntheticOdds()">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="synth-actions">
+        <button id="synth-add-row" class="calc-btn-sub">＋行を追加</button>
+        <button id="synth-calc-btn" class="calc-btn">合成オッズを計算</button>
+      </div>
+      <div id="synth-result" class="synth-result"></div>
+      <div class="calc-note" style="margin-top:8px">合成オッズ = 合計投資額 ÷ Σ(各投資額 ÷ 各オッズ)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 選手詳細 -->
+<div id="profiles" class="tab-panel">
+  <div class="section-header">
+    <span class="section-title">選手プロフィール</span>
+  </div>
+  <div id="racer-profiles"></div>
+</div>
+
+<!-- グラフ -->
+<div id="charts" class="tab-panel">
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">展示タイム & 原時計比較</div>
+      <canvas id="exhibition-chart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">コース別勝率レーダー</div>
+      <canvas id="course-win-chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/prediction.js"></script>
+<script src="js/realtime.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
