@@ -72,4 +72,5 @@ async function highlightTodayVenues() {
   }
 }
 
-highlightTodayVenues();
+setTimeout(highlightTodayVenues, 2000);
+
