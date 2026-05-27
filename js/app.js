@@ -271,7 +271,7 @@ function renderOriginalTimeSection(race) {
 
   container.innerHTML = `
     <div class="ot-title">
-      <span>原時計ランキング</span>
+      <span>周回Tランキング</span>
       <span class="ot-note">モーター基本出力指標（低いほど高出力）</span>
     </div>
     <div class="ot-list">
@@ -721,7 +721,7 @@ function renderAIPrediction(pred) {
 function scoreLabel(key) {
   return {
     exhibitionTime: '展示T',
-    originalTime: '原時計',
+    originalTime: '周回T',
     courseWinRate: 'コース率',
     startTiming: 'ST',
     tiltBonus: 'チルト',
@@ -1020,6 +1020,7 @@ function showTomorrowBanner(venues, date) {
   const raceSection = document.querySelector('.race-section');
   if (raceSection) raceSection.insertAdjacentElement('afterend', banner);
 }
+
 
 
 
