@@ -160,9 +160,8 @@ function renderRaceCard(race) {
         <div class="racer-main">
           <span class="racer-name">${racer.name}</span>
           <span class="racer-class class-${racer.class.toLowerCase()}">${racer.class}</span>
+          <span id="cs-badge-${racer.course}"></span>
         </div>
-        <div class="racer-sub">
-          <span>${racer.pref}</span>
           <span>登録${racer.id}</span>
           ${nigeLabel}${nigashiLabel}
           ${racer.flyingCount > 0 ? `<span class="fl-badge f-badge">F${racer.flyingCount}</span>` : ''}
@@ -1021,6 +1020,7 @@ function showTomorrowBanner(venues, date) {
   const raceSection = document.querySelector('.race-section');
   if (raceSection) raceSection.insertAdjacentElement('afterend', banner);
 }
+
 
 
 
