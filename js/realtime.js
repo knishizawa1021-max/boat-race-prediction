@@ -150,3 +150,26 @@ async function checkApiHealth() {
 }
 
 checkApiHealth();
+
+async function fetchRacerCourseStats(racerId) {
+  try {
+    const res = await fetch(`https://boatrace-api.onrender.com/api/racer/${racerId}/kimari`, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.kimari || null;
+  } catch(e) {
+    return null;
+  }
+}
+
+async function enrichRaceWithCourseStats(race) {
+  if (!race || !race.racers) return;
+  const promises = race.racers.map(async racer => {
+    if (!racer.id) return;
+    const stats = await fetchRacerCourseStats(racer.id);
+    if (stats) {
+      racer.realCourseStats = stats;
+    }
+  });
+  await Promise.all(promises);
+}

@@ -78,3 +78,32 @@ setTimeout(highlightTodayVenues, 5000);
 
 
 
+
+async function loadAndShowCourseStats(race) {
+  if (!race || !race.racers) return;
+  await Promise.all(race.racers.map(async racer => {
+    if (!racer.id) return;
+    try {
+      const res = await fetch(`https://boatrace-api.onrender.com/api/racer/${racer.id}/kimari`, { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.kimari && Object.keys(data.kimari).length > 0) {
+        racer.realCourseStats = data.kimari;
+        updateCourseStatsBadge(racer);
+      }
+    } catch(e) {}
+  }));
+}
+
+function updateCourseStatsBadge(racer) {
+  const course = String(racer.course);
+  const stats = racer.realCourseStats && racer.realCourseStats[course];
+  if (!stats) return;
+  const badge = document.getElementById(`cs-badge-${racer.course}`);
+  if (badge) {
+    badge.innerHTML = `
+      <span style="font-size:0.65rem;color:#00d4ff;margin-left:4px;">
+        \u5165${stats.nyuuritsu}% 3\u9023${stats.sanrenritsu}% ST${stats.avg_st}
+      </span>`;
+  }
+}
