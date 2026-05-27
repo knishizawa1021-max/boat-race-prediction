@@ -15,7 +15,6 @@ function init() {
   buildVenueTabs();
   loadVenueRaces(currentVenueId);
   fetchTomorrowSchedule();
-  fetchTomorrowSchedule();
   setupTabs();
 
   onRealtimeUpdate(({ race, updatedFields, timestamp }) => {
@@ -1010,3 +1009,4 @@ function showTomorrowBanner(venues, date) {
   const raceSection = document.querySelector('.race-section');
   if (raceSection) raceSection.insertAdjacentElement('afterend', banner);
 }
+
