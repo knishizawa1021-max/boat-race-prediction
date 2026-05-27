@@ -1022,3 +1022,4 @@ function showTomorrowBanner(venues, date) {
   if (raceSection) raceSection.insertAdjacentElement('afterend', banner);
 }
 
+
