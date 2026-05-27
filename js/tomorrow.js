@@ -44,3 +44,32 @@ function showTomorrowBanner(venues, date) {
   const raceSection = document.querySelector('.race-section');
   if (raceSection) raceSection.insertAdjacentElement('afterend', banner);
 }
+
+async function highlightTodayVenues() {
+  try {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const d = String(now.getDate()).padStart(2,'0');
+    const yyyymmdd = `${y}${m}${d}`;
+    const res = await fetch(`https://boatrace-api.onrender.com/api/schedule/${yyyymmdd}`, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.venues || data.venues.length === 0) return;
+    const activeIds = data.venues.map(v => v.venue_id);
+    document.querySelectorAll('.venue-tab').forEach(btn => {
+      const id = btn.dataset.id;
+      if (activeIds.includes(id)) {
+        btn.style.opacity = '1';
+        btn.style.border = '2px solid #00d4ff';
+      } else {
+        btn.style.opacity = '0.3';
+        btn.style.filter = 'grayscale(100%)';
+      }
+    });
+  } catch(e) {
+    console.warn('today venues fetch failed:', e);
+  }
+}
+
+highlightTodayVenues();
