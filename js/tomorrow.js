@@ -1,4 +1,6 @@
 ﻿
+setTimeout(showVenueGrid, 100);
+
 async function fetchTomorrowSchedule() {
   try {
     const tomorrow = new Date();
@@ -73,5 +75,6 @@ async function highlightTodayVenues() {
 }
 
 setTimeout(highlightTodayVenues, 5000);
+
 
 
