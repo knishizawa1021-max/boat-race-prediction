@@ -1,4 +1,4 @@
-let currentVenueId = 'kiryu';
+﻿let currentVenueId = 'kiryu';
 let currentRaceNo = 1;
 let allRaces = {};
 let activeTab = 'race-card';
@@ -972,3 +972,4 @@ function dotRating(n) {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
